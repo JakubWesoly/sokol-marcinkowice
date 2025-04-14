@@ -1,0 +1,45 @@
+.switch{
+    padding-bottom: 1rem;
+    
+    &-list{
+        display: flex;
+        flex-direction: row;
+
+        &-item{
+            padding: 1rem 0.25rem;
+            color: #424242;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none; 
+            -khtml-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none;
+            user-select: none;
+
+            &-selected{
+                color: #1E1E1E;
+                text-decoration: underline;
+                padding: 1rem 0.25rem;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none; 
+                -khtml-user-select: none; 
+                -moz-user-select: none; 
+                -ms-user-select: none;
+                user-select: none;
+                cursor: pointer;
+            }
+        }
+
+        &-separator{
+            float:left;
+            padding: 1rem 0.75rem;
+            color: #A8A8A8;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none; 
+            -khtml-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none;
+            user-select: none;
+        }
+    }
+}

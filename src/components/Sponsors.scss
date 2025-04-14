@@ -1,0 +1,30 @@
+.sponsor-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: fit-content;
+  margin: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  margin: auto;
+  a{
+    display: block;
+  }
+  a[href=""] {
+    pointer-events: none;
+  }
+
+  img {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .sponsor-section {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    // padding: 0;
+    margin-top: 5rem;
+  }
+}

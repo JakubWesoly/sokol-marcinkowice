@@ -1,0 +1,83 @@
+---
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import CurrentCamp from "../../components/CurrentCamp.tsx";
+import LastCamp from "../../components/LastCamp.tsx";
+import Footer from "../../components/Footer";
+import { getCollection } from "astro:content";
+
+// STYLES
+import "../../styles/global.css";
+
+//ASTRO
+
+const campsCollection = await getCollection("camps");
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Obóz - Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="camp" client:load />
+    <main class="container">
+      <header class="section-header">
+        <h3>Obóz</h3>
+      </header>
+      {
+        campsCollection
+          .filter((camp) => camp.data.isCurrent)
+          .map((camp) => (
+            <CurrentCamp
+              name={camp.data.name}
+              place={camp.data.place}
+              hotel={camp.data.hotel}
+              hotelImage={camp.data.hotelImage}
+              departure={camp.data.departure}
+              return={camp.data.return}
+              price={camp.data.price}
+              client:load
+            />
+          ))
+      }
+      <header class="section-header">
+        <h3 style="font-size:20px">Poprzednie obozy</h3>
+      </header>
+      {
+        campsCollection
+          .filter((camp) => !camp.data.isCurrent)
+          .map((camp) => (
+            <LastCamp
+              name={camp.data.name}
+              place={camp.data.place}
+              hotel={camp.data.hotel}
+              groupPhoto={camp.data.groupPhoto}
+              galleryLink="poprzedni-oboz"
+              client:load
+            />
+          ))
+      }
+    </main>
+    <Footer client:load />
+  </body>
+</html>
+
+<style lang="scss">
+  .container {
+    padding-top: 5rem;
+    width: fit-content;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  @media screen and (max-width: 900px) {
+    .container {
+      width: 100%;
+    }
+  }
+</style>

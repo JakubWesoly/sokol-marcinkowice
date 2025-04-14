@@ -1,0 +1,137 @@
+.last-match {
+    max-width: 750px;
+    background-color: #F2F2F2;
+    border-radius: 4rem;
+    padding: 4rem;
+    // width: fit-content;
+    box-shadow: 0 4px 4px 0 #0000003F, inset 0 4px 4px 0 #0000003F;
+
+    hr {
+        width: 50%;
+        text-align: center;
+        background-color: #d4d4d4;
+        margin-top: 3rem;;
+    }
+
+    .upper-top {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        margin-bottom: 2rem;
+        & > div > p {
+            text-align: center;
+        }
+    }
+
+    .main-top {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        
+        align-items: baseline;
+        justify-content: center;
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            img {
+                display: block;
+                width: 200px;
+                aspect-ratio: 1;
+                object-fit: contain;
+            }
+
+            p {
+                font-size: 1.5rem;
+                font-weight: bold;
+                text-align: center;
+            }
+        }
+
+        .score {
+            font-size: 3rem;
+            font-weight: bold;
+
+            align-self: center;
+            text-align: center;
+
+            letter-spacing: 1rem;
+        }
+    }
+
+    .goals {
+
+        margin-top: 3rem;
+        display: flex;
+        justify-content: space-between;
+
+        text-align: right;
+
+        ul {
+            line-height: 1.5rem;
+        }
+        ul:first-of-type {
+            
+            text-align: left;
+        }
+    }
+
+    .cta {
+        margin-top: 2rem;
+        text-align: right;
+    }
+}
+
+.last-match-mobile{
+    display: none;
+}
+
+@media screen and (max-width:900px){
+    .last-match{
+        display: none;
+    }
+
+    .last-match-mobile{
+        display: unset;
+        width:80%;
+        max-width: 500px;
+        margin-bottom:10px;
+
+        &-league{
+            width:100%;
+            height:12px;
+            background-color: #008FDF;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            p{
+                font-size: 10px;
+                font-weight: bold;
+                color:white;
+            }
+        }
+
+        &-content{
+            width:100%;
+            height: 43px;
+            background-color: #F2F2F2;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            img{
+                height: 30px;
+                margin-left:10px;
+                margin-right: 10px;
+            }
+
+            p{
+                &:nth-of-type(2){
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+}

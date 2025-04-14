@@ -1,0 +1,97 @@
+---
+import type { GetStaticPaths } from "astro";
+
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import Footer from "../../components/Footer";
+
+import ShopItem from "../../components/ShopItem";
+import ShopItemMobile from "../../components/ShopItemMobile";
+import { cart, type Cart, type Product } from "../../atoms/cart";
+import { contentfulClient, type ProductInterface } from "../../lib/contentful";
+import { generateSlug } from "../../lib/generateSlug";
+import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
+
+// STYLES
+import "../../styles/global.css";
+
+export async function getStaticPaths() {
+  const { items } = await contentfulClient.getEntries<ProductInterface>({
+    content_type: "products",
+  });
+
+  const pages = items.map((item) => ({
+    params: { product: generateSlug(item.fields.name) },
+    props: {
+      name: item.fields.name,
+      description: documentToHtmlString(item.fields.description),
+      photo:
+        "http:" +
+        JSON.parse(JSON.stringify(item.fields.pictures))[0].fields.file.url,
+      type: item.fields.type,
+      sizes: getSizes(item.fields.sizes),
+      price: item.fields.price,
+    },
+  }));
+
+  function getSizes(sizes: string) {
+    if(sizes) {
+    var JSONSizes: string = JSON.stringify(sizes) as string ;
+    var parsedSizes: Array<string> = JSON.parse(
+      JSONSizes
+    ) as Array<string>;
+      return parsedSizes;
+
+    }
+    return [];
+  }
+  return pages;
+}
+
+const { name, description, sizes, photo, type, price } = Astro.props;
+const product: Product = {
+  name: name,
+  imageSource: photo,
+  description: description,
+  type: type,
+  size: '',
+  price: Number(price),
+  count: 1,
+  link: generateSlug(name),
+};
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="none" displayCart={true} client:only="react" />
+    <main class="product-container">
+      <ShopItem product={product} sizes={sizes} client:load />
+      <ShopItemMobile product={product} sizes={sizes} client:load />
+    </main>
+    <Footer client:load />
+  </body>
+</html>
+
+<style class="scss">
+  .product-container {
+    /* width: 1000px; */
+    min-height: 90svh;
+    /* margin: 17.5rem auto 0 auto; */
+    display: flex;
+    position: relative;
+    /* justify-content: space-around;
+		padding: 10rem; */
+    gap: 10rem;
+
+    @media screen and (max-width: 900px) {
+      width: 100%;
+      margin: 5rem 0;
+    }
+  }
+</style>

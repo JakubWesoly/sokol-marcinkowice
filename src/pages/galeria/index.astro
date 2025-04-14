@@ -1,0 +1,103 @@
+---
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import Gallery from "../../components/Gallery.tsx";
+import Footer from "../../components/Footer";
+
+// STYLES
+import "../../styles/global.css";
+
+//ASTRO
+
+import { contentfulClient, type GalleryInterface } from "../../lib/contentful";
+import resolveResponse from "contentful-resolve-response";
+
+const entries =
+  await contentfulClient.withoutUnresolvableLinks.getEntries<GalleryInterface>({
+    content_type: "galleries",
+  });
+
+export interface Galleries {
+  name: string;
+  main_picture: string;
+  finalPictures: GroupOfPictures[];
+}
+
+interface GalleriesDates extends Galleries {
+  date: string;
+}
+export interface GroupOfPictures {
+  title: string;
+  photos: string;
+}
+
+const preGalleries = resolveResponse(entries);
+
+const galleries: Array<GalleriesDates> = preGalleries.map((item: any) => {
+  var finalPictures: Array<GroupOfPictures> = [];
+  for (var i = 0; i < item.fields.pictures.length; i++) {
+    if (item.fields.pictures[i]) {
+      const arrayToAdd: GroupOfPictures = {
+        title: item.fields.pictures[i]?.fields.title as string,
+        photos: item.fields.pictures[i]?.fields.file.url as string,
+      };
+      finalPictures = [...finalPictures, arrayToAdd];
+    }
+  }
+  return {
+    name: item.fields.name,
+    main_picture: item.fields.main_picture.fields.file.url,
+    finalPictures,
+    date: item.sys.createdAt,
+  };
+});
+
+const sortedGalleriesDataWithDates = galleries
+  .sort((a, b) => a.date.localeCompare(b.date))
+  .reverse();
+
+const sortedGalleriesData: Array<Galleries> = sortedGalleriesDataWithDates.map(
+  (gallery) => ({
+    name: gallery.name,
+    main_picture: gallery.main_picture,
+    finalPictures: gallery.finalPictures,
+  })
+);
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Galeria - Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="gallery" client:load />
+    <main class="container">
+      <header class="section-header">
+        <h3>Galeria</h3>
+      </header>
+      <Gallery GalleriesData={sortedGalleriesData} client:load />
+    </main>
+    <Footer client:load />
+  </body>
+</html>
+
+<style lang="scss">
+  .container {
+    padding-top: 5rem;
+    width: fit-content;
+    margin: auto;
+  }
+
+  @media screen and (max-width: 900px) {
+    .container {
+      padding-top: 1rem;
+    }
+
+    .section-header {
+      padding-top: 3rem;
+    }
+  }
+</style>

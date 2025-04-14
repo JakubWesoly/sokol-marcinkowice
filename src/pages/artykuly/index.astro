@@ -1,0 +1,106 @@
+---
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import Footer from "../../components/Footer";
+import Article from "../../components/Article.tsx";
+
+// STYLES
+import "../../styles/global.css";
+
+// ASTRO
+
+import { contentfulClient, type ArticleInterface } from "../../lib/contentful";
+import { generateSlug } from "../../lib/generateSlug";
+
+const entries = await contentfulClient.getEntries<ArticleInterface>({
+  content_type: "artykul",
+});
+
+const posts = entries.items.map((item) => {
+  const { tytul, tekst, grupa } = item.fields;
+  return {
+    tytul,
+    tekst,
+    grupa,
+    link: generateSlug(tytul),
+  };
+});
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Aktualności - Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="news" client:load />
+    <header class="section-header">
+      <h3>Aktualności</h3>
+    </header>
+    <div class="articles-container">
+      {
+        posts.map((kolekcja: any) => (
+          <Article
+            link={kolekcja.link}
+            title={kolekcja.tytul}
+            time="Wczoraj"
+            team={kolekcja.grupa}
+            image=""
+          />
+        ))
+      }
+    </div>
+    <Footer client:load />
+  </body>
+</html>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  // .article
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.to(".article", {
+    y: 16,
+    opacity: 1,
+    stagger: 0.05,
+    delay: 0,
+    duration: 0.2,
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".article",
+      toggleActions: "play none none none",
+    },
+  });
+</script>
+
+<style lang="scss">
+  h3 {
+    margin-top: 5rem;
+  }
+  .articles-container {
+    display: grid;
+    margin: auto;
+    width: fit-content;
+    justify-content: center;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    row-gap: 4rem;
+  }
+
+  @media screen and (max-width: 900px) {
+    .section-header {
+      padding-top: 0;
+    }
+
+    .articles-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding-bottom: 7rem;
+    }
+  }
+</style>

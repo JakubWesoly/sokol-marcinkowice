@@ -1,0 +1,89 @@
+---
+
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import DetailedCamp from "../../components/DetailedCamp.tsx";
+import PhotoCarousel from "../../components/PhotoCarousel.tsx";
+import Footer from "../../components/Footer";
+import { getCollection } from "astro:content";
+import { getEntry } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+// STYLES
+import '../../styles/global.css';
+
+//ASTRO
+
+export const campsCollection = await getCollection('camps');
+
+export const getStaticPaths = (() => {
+    return campsCollection.map((campData) => ({params: {camp: campData.id}}));
+}) satisfies GetStaticPaths;
+
+const {camp} = Astro.params;
+
+const campData = await getEntry('camps', camp);
+
+---
+
+
+<html lang="pl">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <title>Obóz - Sokół Marcinkowice</title>
+	</head>
+	<body>
+        <Navbar current="none" client:load/>
+        <main class="container">
+            <header class="section-header">
+                <h3>Obóz</h3>
+            </header>
+            <div class="camp">
+                <DetailedCamp name={campData.data.name} place={campData.data.place} 
+                hotel={campData.data.hotel} hotelImage={campData.data.hotelImage} 
+                departure={campData.data.departure} departureHour={campData.data.departureHour}
+                return={campData.data.return} returnHour={campData.data.returnHour} 
+                firstPay={campData.data.firstPay} secondPay={campData.data.secondPay} client:load/>
+                <div class="camp-carousel">
+                    <PhotoCarousel images={campData.data.hotelPhotos} client:load/>
+                </div>
+            </div>
+        </main>
+        <Footer client:load/>
+    </body> 
+</html>
+
+<style lang="scss">
+    .container { 
+        padding-top:5rem;
+        width: fit-content;
+        margin: auto;
+
+        @media screen and (max-width:900px){
+            padding-top: 0;
+            width: 100%;
+        }
+    }
+
+    .camp{
+        padding-bottom: 5rem;
+        position:relative;
+    }
+
+    .camp-carousel{
+        overflow: auto;
+        white-space: nowrap;
+    }
+
+    @media screen and (max-width: 900px) {
+		.section-header {
+			padding-top: 5rem;
+
+		}
+		h3 {
+			margin-top: 0rem;
+		}
+    }
+</style>

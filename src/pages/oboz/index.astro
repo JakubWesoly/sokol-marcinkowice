@@ -1,0 +1,701 @@
+---
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop";
+import Footer from "../../components/Footer";
+
+
+// IMAGES
+import pensjonat from "../../images/pensjonat.png";
+import pdf from "../../images/pdf.png";
+import wyjazd from '../../images/wyjazd.png';
+import powrot from '../../images/powrot.png';
+import calendar from '../../images/calendar.svg';
+import clock from '../../images/clock-black.svg';
+
+// STYLES
+import "../../styles/global.css";
+import Image from "astro/components/Image.astro";
+
+// CONTENTFUL
+import {
+  contentfulClient,
+  type CampInterface
+} from "../../lib/contentful";
+import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
+
+const campEntry = await contentfulClient.getEntry<CampInterface>("1HTUdGcFolZmx98fqjoc5B");
+
+const {
+  tytul,
+  lokalizacja,
+  opis,
+  dataWyjazdu,
+  dataPowrotu,
+  linkStronyOsrodka,
+  zalaczniki,
+  zdjecieWTle
+} = campEntry.fields;
+
+const departureDate = new Date(dataWyjazdu);
+const arrivalDate = new Date(dataPowrotu);
+
+const transformedDescription = documentToHtmlString(opis);
+
+const campPictureURL: string = (zdjecieWTle as any).fields.file.url;
+
+function addLeadingZero(text: string) {
+  return text.length < 2 ? '0' + text : text;
+}
+
+
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Obóz - Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="camp" client:load />
+
+    <div class="container">
+      <header
+        class="big-header"
+        style={`background-image: url(${campPictureURL})`}
+      >
+        <div class="big-header-dark-gradient"></div>
+        <div class="big-header-green-gradient"></div>
+        <div>
+          <h1>{tytul}</h1>
+          <p>{lokalizacja}</p>
+          <p>{
+          addLeadingZero(departureDate.getDate().toString()) + 
+          "." + 
+          addLeadingZero((departureDate.getMonth() + 1).toString()) +
+          " - " +
+          addLeadingZero(arrivalDate.getDate().toString()) + 
+          "." + 
+          addLeadingZero((arrivalDate.getMonth() + 1).toString())}</p>
+        </div>
+      </header>
+      <div class="countdown">
+        <h3>-</h3>
+      </div>
+      <div class="travel-info">
+        <div class="travel-section">
+          <div class="travel-section-picture to-right">
+            <Image src={wyjazd} alt="wyjazd" />
+          </div>
+          <h3>Wyjazd</h3>
+          <div class="travel-time">
+            <p>
+              <Image src={calendar} alt="Kalendarz" />
+              <span>{arrivalDate.toLocaleDateString('pl', { weekday: 'long' })}, {arrivalDate.toLocaleDateString('pl', {day: '2-digit', month: '2-digit', year: 'numeric'})}</span>
+            </p>
+            <p>
+              <Image src={clock} alt="Zegar" />
+              <span>{(departureDate.getHours() + 1) + ":" + addLeadingZero((departureDate.getMinutes()).toString())}</span>
+            </p>
+          </div>
+          <div class="travel-details">
+            Przed wyjazdem na młodzieżowy obóz piłkarski, pamiętaj o kilku
+            kluczowych rzeczach. Spakuj strój piłkarski, korki, ochraniacze i
+            bidon – to podstawa. Nie zapomnij o odzieży na czas wolny, klapkach,
+            ręcznikach i kosmetykach. Ochrona przed słońcem? Czapka, okulary
+            przeciwsłoneczne i krem UV to must-have. Zabierz też dokumenty,
+            kartę NFZ oraz ewentualne leki. Jeśli masz śpiwór i latarkę, będą
+            dodatkowym plusem. Przygotuj się dobrze, a resztę czasu poświęć na
+            treningi, zabawę i relaks!
+          </div>
+        </div>
+        <div class="travel-section">
+            <div class="travel-section-picture">
+              <Image src={powrot} alt="powrót"/>
+            </div>
+          <h3>Powrót</h3>
+          <div class="travel-time">
+            <p>
+              <Image src={calendar} alt="Kalendarz"/>
+              <span>{arrivalDate.toLocaleDateString('pl', { weekday: 'long' })}, {arrivalDate.toLocaleDateString('pl', {day: '2-digit', month: '2-digit', year: 'numeric'})}</span>
+            </p>
+            <p>
+              <Image src={clock} alt="Zegar"/>
+              <span>{(arrivalDate.getHours() + 1) + ":" + addLeadingZero((arrivalDate.getMinutes()).toString())}</span>
+            </p>
+          </div>
+          <div class="travel-details">
+            Przed wyjazdem na młodzieżowy obóz piłkarski, pamiętaj o kilku
+            kluczowych rzeczach. Spakuj strój piłkarski, korki, ochraniacze i
+            bidon – to podstawa. Nie zapomnij o odzieży na czas wolny, klapkach,
+            ręcznikach i kosmetykach. Ochrona przed słońcem? Czapka, okulary
+            przeciwsłoneczne i krem UV to must-have. Zabierz też dokumenty,
+            kartę NFZ oraz ewentualne leki. Jeśli masz śpiwór i latarkę, będą
+            dodatkowym plusem. Przygotuj się dobrze, a resztę czasu poświęć na
+            treningi, zabawę i relaks!
+          </div>
+        </div>
+      </div>
+      <section class="main-info">
+        <div class="additional-info">
+          <ul class="attatchments">
+            <h3>Załączniki</h3>
+            {
+              zalaczniki.map(attatchment => 
+                <li><a href={(attatchment as any).fields.file.url}><Image src={pdf} alt="PDF"/> <span>{(attatchment as any).fields.title}</span></a></li>
+              )
+            }
+          </ul>
+          <a href={"http://" + linkStronyOsrodka} target="_blank" class="camp-destination">
+            <div class="camp-destination-picture-overlay">
+                <img src={campPictureURL} alt="Pensjonat" />
+            </div>
+            <h3>Strona Ośrodka</h3>
+            <p>Tu odbędzie się obóz</p>
+          </a>
+        </div>
+        <article set:html={transformedDescription}>
+        </article>
+      </section>
+    </div>
+    <Footer client:load />
+  </body>
+</html>
+
+<script is:inline define:vars={{departureDate}}>
+    const targetDate = new Date(departureDate);
+    
+    function updateClock() {
+    const currentDate = new Date();
+
+    const displayedDate =  new Date(targetDate.getTime() - currentDate.getTime());
+
+    const display = !(displayedDate.getTime() < 0) ?
+        `Do rozpoczęcia zostało 
+            ${displayedDate.getMonth() > 0 ? `${displayedDate.getMonth() + " " + declinateMiesiac(displayedDate.getMonth())}, ` : ''} 
+            ${displayedDate.getDate() > 0 ? `${displayedDate.getDate() + " " + declinateDzien(displayedDate.getDate())}, ` : ''} 
+            ${displayedDate.getHours() > 0 ? `${displayedDate.getHours() + " " + declinateGodzina(displayedDate.getHours())}, ` : ''}
+            ${displayedDate.getMinutes() > 0 ? `${displayedDate.getMinutes() + " " + declinateMinuta(displayedDate.getMinutes())} i` : ''}
+            ${displayedDate.getSeconds() + " " + declinateSekunda(displayedDate.getSeconds() )}` :
+        `Już zaczeliśmy!`
+
+        document.querySelector('.countdown > h3').innerHTML = display;
+    }
+    updateClock();
+
+    const timeoutLength = 1000;
+
+    setInterval(() => {
+        updateClock()
+
+    }, timeoutLength);
+
+    function declinateMiesiac(n) {
+        switch(n) {
+            case 1:
+                return "miesiąc";
+            case 2:
+            case 3:
+            case 4:
+                return "miesiące";
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+                return "miesięcy";
+        }
+
+        return "";
+    }
+
+    function declinateDzien(n) {
+        switch(n) {
+            case 1:
+                return "dzień";
+            default:
+                return "dni";
+        }
+
+    }
+
+    function declinateGodzina(n) {
+        switch(n) {
+            case 1:
+                return "godzina";
+            case 2:
+            case 3:
+            case 4:
+                return "godziny";
+            default:
+                return "godzin";
+        }
+    }
+
+    function declinateMinuta(n) {
+        switch(n) {
+            case 1:
+                return "minuta";
+            case 2:
+            case 3:
+            case 4:
+            case 22:
+            case 23:
+            case 24:
+            case 32:
+            case 33:
+            case 34:
+            case 42:
+            case 43:
+            case 44:
+            case 52:
+            case 53:
+            case 54:
+                return "minuty";
+            default:
+                return "minut";
+        }
+    }
+
+    function declinateSekunda(n) {
+        switch(n) {
+            case 1:
+                return "sekunda";
+            case 2:
+            case 3:
+            case 4:
+            case 22:
+            case 23:
+            case 24:
+            case 32:
+            case 33:
+            case 34:
+            case 42:
+            case 43:
+            case 44:
+            case 52:
+            case 53:
+            case 54:
+                return "sekundy";
+            default:
+                return "sekund";
+        }
+
+        return "";
+    }
+</script>
+
+<style lang="scss">
+  .container {
+    padding: 5rem;
+  }
+
+  .big-header {
+    background-size: cover;
+    background-position: 50%;
+    position: relative;
+
+    z-index: -3;
+
+    border-radius: 3rem;
+
+    color: white;
+    height: calc(100svh - 10rem);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    overflow: hidden;
+
+    h1 {
+      font-size: 4rem;
+      font-weight: bold;
+      z-index: 10;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 1.25rem;
+      letter-spacing: 0.3rem;
+      z-index: 10;
+      margin-bottom: 0.25rem;
+    }
+
+    & &-dark-gradient {
+      width: 100%;
+      height: 125%;
+      bottom: 0;
+      background: linear-gradient(to bottom, #00000000, #000000ff);
+      border-radius: 3rem;
+      position: absolute;
+      z-index: -1;
+    }
+
+    & &-green-gradient {
+      position: absolute;
+      z-index: -2;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 127, 0, 1) 0%,
+        rgba(0, 127, 0, 0) 100%
+      );
+      width: 100%;
+      height: 100%;
+      top: 0%;
+      clip-path: circle(100% at center -25%);
+    }
+  }
+
+  .countdown {
+    font-size: 2.25rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 10rem 0;
+  }
+
+  .travel-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+  }
+
+  .travel-section {
+    width: 100%;
+    background-color: #ececec;
+    padding: 10rem ;
+    border-radius: 3rem;
+    position: relative;
+    box-shadow: 0 0 4px 0 #0000003f;
+
+    overflow: hidden;
+
+    & > * {
+      width: 50%;
+    }
+
+    display: flex;
+    flex-direction: column;
+
+    &:nth-of-type(2) {
+      align-items: flex-end;
+    }
+
+    h3 {
+      font-size: 2.25rem;
+      font-weight: bold;
+    }
+
+    .travel-time {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      text-transform: capitalize;
+      p {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        img {
+        height: 2rem;
+      }
+      }
+    }
+
+    .travel-details {
+      line-height: 1.25;
+    }
+
+    .travel-section-picture {
+        position: absolute;
+        width: 60%;
+        height: 100%;
+        top: 0;
+        left: 0;
+
+        &.to-right {
+            left: unset;
+            right: 0 !important;
+
+            img {
+                // transform: scale(2);
+                mask-image: radial-gradient(circle at right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+            }
+        }
+        
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.5);
+
+            mask-image: radial-gradient(circle at left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+        }
+    }
+  }
+
+  .main-info {
+    margin-top: 20rem;
+    display: grid;
+    gap: 10rem;
+    grid-template-columns: 1fr 80ch 1fr;
+
+    .additional-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5rem;
+        width: fit-content;
+        justify-self: end;
+      .attatchments {
+        padding: 4rem;
+        border-radius: 4rem;
+        box-shadow: 0 0 4px 0 #0000003f;
+        h3 {
+          font-size: 1.5rem;
+          font-weight: bold;
+          margin-bottom: 1.25rem;
+        }
+
+        li {
+          margin-bottom: 0.75rem;
+
+          a {
+            color: black;
+            text-decoration: none;
+
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+          }
+        }
+      }
+
+      .camp-destination {
+        color: black;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        gap: .5rem;
+        position: relative;
+
+        text-decoration: none;
+        
+        padding: 4rem;
+        border-radius: 4rem;
+        box-shadow: 0 0 4px 0 #0000003f;
+        width: 100%;
+        aspect-ratio: 1;
+        
+        overflow: hidden;
+        z-index: 2;
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        p {
+            letter-spacing: 110%;
+        }
+
+        .camp-destination-picture-overlay {
+            z-index: -1;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            inset: 0;
+            background-color: white;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                mix-blend-mode: luminosity;
+                mask-image: linear-gradient(to top, transparent 0%, black 250%);;
+            }
+        }
+      }
+    }
+
+    article {
+      line-height: 1.5rem;
+      word-spacing: 0.16rem;color: hsl(0, 0%, 26%);
+
+        text-align: justify;
+
+        line-height: 1.5rem;
+        word-spacing: 0.16rem;
+
+        .article-heading {
+        .type {
+            display: flex;
+            gap: 0.5rem;
+        }
+        h2 {
+            margin-top: 0.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: left;
+            line-height: 2rem;
+        }
+
+        .section-separator {
+            margin: 2.5rem 0;
+            height: 2px;
+            width: 100%;
+            background-color: green;
+        }
+        }
+
+        h1 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        text-align: left;
+        }
+        h1 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
+    
+    h2 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
+    
+    h3 {
+      font-size: 1.15rem;
+      font-weight: bold;
+      margin-top: 1.15rem;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
+    
+    b {
+        font-weight: bold;
+    }
+
+    i {
+      font-style: italic;
+    }
+
+    ul {
+      list-style-type: disc;
+      margin: 0rem 0 1rem 2rem;
+    }
+
+    ol {
+      list-style-type: decimal;
+      margin: 1rem 0 1rem 2rem;
+    }
+
+    sup {
+      vertical-align: super;
+      font-size: smaller;
+    }
+
+    sub {
+      vertical-align: sub;
+      font-size: smaller;
+    }
+
+    table {
+      margin: 2rem 0;
+      border: 1px solid black;
+      width: 100%;
+    }
+
+    td, th {
+      padding: 1rem;
+      border: 1px solid black;
+    }
+
+    th {
+      text-align: center;
+      font-weight: bold;
+      background-color: #ddd;
+    }
+
+    hr {
+      margin: 5rem;
+    }
+    }
+  }
+
+  @media (screen and max-width: 900px) {
+    .container {
+      padding: 2rem;
+    }
+    .big-header {
+      width: 100svw;
+      height: 100svh;
+      margin-top: -2rem;
+      margin-left: -2rem;
+      border-radius: 0;
+
+      .big-header-dark-gradient {
+        border-radius: 0;
+      }
+
+      .big-header-green-gradient {
+        clip-path: none;
+
+      }
+    }
+    
+    .travel-section {
+      
+      padding: 3rem;
+
+      
+    & > * {
+      width: unset;
+    }
+
+    .travel-section-picture {
+      width: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        display: none;
+        // mask-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 125) 100%) !important;
+      }
+
+    }
+
+    }
+    .travel-info {
+      display: flex;
+      flex-direction: column;
+      // padding: 5rem;
+    }
+    .main-info {
+      display: flex;
+      flex-direction: column;
+      margin-top: 5rem;
+      gap: 5rem;
+      margin-bottom: 5rem;
+
+      .additional-info {
+        order: 2;
+      }
+
+    }
+  }
+</style>

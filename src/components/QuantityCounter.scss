@@ -1,0 +1,48 @@
+.scss-counter {
+    display: flex;
+    align-items: center;
+    margin-left: .5rem;
+    
+    .counter-button {
+      width: fit-content;
+    //   height: 32px;
+    //   height: 100%;
+    //   aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border-radius: 50%;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  
+    //   &:hover:not(:disabled) {
+    //     background-color: #cbd5e1;
+    //   }
+  
+      &:focus {
+        outline: none;
+        // box-shadow: 0 0 0 2px #94a3b8;
+      }
+  
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  
+    .counter-display {
+    //   width: 48px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 .5rem;
+    }
+  }
+
+@media screen and (max-width: 900px) {
+  
+}

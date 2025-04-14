@@ -1,0 +1,93 @@
+---
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop";
+import Footer from "../../components/Footer";
+
+import TrainerCard from "../../components/TrainerCard";
+
+// STYLES
+import "../../styles/global.css";
+
+// ASTRO
+
+import { contentfulClient, type TrainerInterface } from "../../lib/contentful";
+import { generateSlug } from "../../lib/generateSlug";
+
+const entries = await contentfulClient.getEntries<TrainerInterface>({
+  content_type: "trener",
+});
+
+const posts = entries.items.map((item) => {
+  const { name, description, phone, certificates, picture } = item.fields;
+  var JSONPicture = JSON.stringify(picture);
+  var parsedPicture = JSON.parse(JSONPicture);
+  var finalPictureUrl = "http:" + parsedPicture.fields.file.url;
+  return {
+    name,
+    description,
+    phone,
+    certificates,
+    finalPictureUrl,
+    link: generateSlug(name),
+  };
+});
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="trainers" client:load />
+    <header class="section-header">
+      <h3>Trenerzy</h3>
+    </header>
+
+    <main class="trainers-container">
+      {
+        posts.map((item: any) => (
+          <TrainerCard
+            name={item.name}
+            picture={item.finalPictureUrl}
+            description={item.description}
+            link={item.link}
+            client:load
+          />
+        ))
+      }
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  h3 {
+    margin-top: 5rem;
+  }
+  .trainers-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    width: fit-content;
+    margin: auto;
+
+    gap: 2rem;
+    row-gap: 3rem;
+  }
+
+  @media screen and (max-width: 900px) {
+    .section-header {
+      padding-top: 5rem;
+    }
+    h3 {
+      margin-top: 0rem;
+    }
+    .trainers-container {
+      grid-template-columns: 1fr;
+      padding: 2rem;
+    }
+  }
+</style>

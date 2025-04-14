@@ -1,0 +1,126 @@
+.footer {
+    background-color: black;
+    width: 100%;
+
+    margin-top: 10rem;
+
+    .overlay{
+        padding: 3rem;
+        width: 100%;
+        background: linear-gradient(hsla(0, 0%, 0%, 0%), hsla(120, 100%, 25%, 25%));
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3rem;
+
+        color: white;
+        text-align: center;
+        a {
+            text-decoration: none !important;
+        }
+        
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            color: white;
+            display: flex;
+            font-size: 2rem;
+            align-items: center;
+            gap: 1rem;
+
+            h2{
+                strong {
+                    font-weight: bold;
+                }
+            }
+
+            img {
+                height: 6rem;
+            }
+        }
+
+        ul {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .copyright {
+            line-height: 1.5rem;
+        }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .footer {
+    
+        margin-top: 2rem;
+    
+        .overlay{
+            padding: 3rem;
+            width: 100%;
+            background: linear-gradient(hsla(0, 0%, 0%, 0%), hsla(120, 100%, 25%, 25%));
+    
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+    
+            color: white;
+            text-align: left;
+            a {
+                text-decoration: underline;
+            }
+
+
+            .links-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 3rem;
+
+                text-align: right;
+            }
+
+            .contact-info {
+                text-align: left;
+            }
+            
+    
+            .logo {
+                color: white;
+                display: flex;
+                font-size: 1.5rem;
+                align-items: center;
+                gap: 1rem;
+    
+                h2{
+                    strong {
+                        font-weight: bold;
+                    }
+                }
+    
+                img {
+                    height: 4rem;
+                }
+            }
+    
+            ul {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+    
+            .copyright {
+                text-align: center;
+                font-size: 0.75rem;
+            }
+        }
+    }
+}

@@ -1,0 +1,65 @@
+.mobile {
+    @media screen and (min-width: 900px) {
+        display: none;
+    }
+    
+    h3 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        margin-left: 2rem;
+    }
+
+    .product-tags {
+        display: flex;
+        gap: .5rem;
+        margin-left: 2rem;
+
+        p {
+            padding: .5rem 1rem;
+            background-color: lightgray;
+            border-radius: 99999px;
+        }
+    }
+
+    .product-image {
+        margin: 2rem 0;
+        padding: 2rem;
+        text-align: center;
+        background-color: lightgray;
+        img {
+            max-width: 100%;
+        }
+    }
+
+    article {
+        padding: 2rem 2rem;
+        line-height: 1rem;
+        word-spacing: 0.16rem;
+    }
+
+    button[type='submit'] {
+        border: 1px solid green;
+        border-radius: 999999999999999px;
+        background-color: transparent;
+        cursor: pointer;
+        padding: 1rem 4rem;
+        font-weight: bolder;
+        width: fit-content;
+        font-size: 1rem;
+        margin: 1rem auto;
+        display: block;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .product-details {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        select {
+            padding: .5rem;
+            margin: 0 1rem 0 .5rem;
+        }
+    }
+}

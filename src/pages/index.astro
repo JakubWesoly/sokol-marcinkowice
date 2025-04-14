@@ -1,0 +1,561 @@
+---
+// COMPONENTS
+import Navbar from "../components/NavbarDesktop.tsx";
+import Hero from "../components/Hero.tsx";
+import Article from "../components/Article";
+import UpcomingMatch from "../components/UpcomingMatch.tsx";
+import LastMatch from "../components/LastMatch.tsx";
+import HomePageTable from "../components/HomePageTable.tsx";
+import Switch from "../components/Switch.tsx";
+import TrainerCard from "../components/TrainerCard";
+import Footer from "../components/Footer";
+import Sponsors from "../components/Sponsors";
+
+// images
+import kidosy from "../images/kidoshd.png";
+
+// STYLES
+import "../styles/global.css";
+import { Image } from "astro:assets";
+
+import { generateSlug } from "../lib/generateSlug";
+
+import {
+  contentfulClient,
+  type SponsorInterface,
+  type ArticleInterface,
+  type TrainerInterface,
+} from "../lib/contentful";
+
+import resolveResponse from "contentful-resolve-response";
+
+interface Sponsor {
+  name: string;
+  photo: string;
+  link: string;
+}
+
+const articles = await contentfulClient.getEntries<ArticleInterface>({
+  content_type: "artykul",
+});
+
+const trainersEntries = await contentfulClient.getEntries<TrainerInterface>({
+  content_type: "trener",
+});
+
+const sponsorsEntries = await contentfulClient.getEntries<SponsorInterface>({
+  content_type: "sponsor",
+});
+
+const posts = articles.items.map((item) => {
+  const { tytul, tekst, grupa } = item.fields;
+  return {
+    tytul,
+    tekst,
+    grupa,
+    link: generateSlug(tytul),
+  };
+});
+
+const trainers = trainersEntries.items.map((item) => {
+  const { name, description, phone, certificates, picture } = item.fields;
+  var JSONPicture = JSON.stringify(picture);
+  var parsedPicture = JSON.parse(JSONPicture);
+  var finalPictureUrl = "http:" + parsedPicture.fields.file.url;
+  return {
+    name,
+    description,
+    phone,
+    certificates,
+    finalPictureUrl,
+    link: generateSlug(name),
+  };
+});
+
+const sponsors = sponsorsEntries.items.map((item) => {
+  const { name, picture, sponsors_site } = item.fields;
+  var JSONPicture = JSON.stringify(picture);
+  var parsedPicture = JSON.parse(JSONPicture);
+  var photo = "http:" + parsedPicture.fields.file.url;
+  return {
+    name,
+    photo,
+    sponsors_site,
+  };
+});
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="home" client:load />
+    <Hero />
+    <div class="gradient"></div>
+    <header class="section-header">
+      <h3>Aktualności</h3>
+    </header>
+    <section class="articles">
+      {
+        posts.slice(0, 5).map((kolekcja: any) => (
+          <Article
+            link={kolekcja.link}
+            title={kolekcja.tytul}
+            time="Wczoraj"
+            team={kolekcja.grupa}
+            image=""
+          />
+        ))
+      }
+    </section>
+    <!-- <header class="section-header">
+      <h3>Nadchodzące Mecze</h3>
+    </header>
+    <Switch client:load />
+    <section class="upcoming-matches">
+      <div class="upcoming-matches-matches">
+        <UpcomingMatch client:load />
+        <UpcomingMatch client:load />
+        <UpcomingMatch client:load />
+      </div>
+    </section>
+    <header class="section-header">
+      <h3>Ostatni Mecz</h3>
+    </header>
+    <section class="last-match-section">
+      <Switch client:load />
+      <LastMatch client:only="react" />
+    </section>
+    <header class="section-header">
+      <h3>Tabela</h3>
+    </header>
+    <div class="table-section">
+      <Switch client:load />
+      <HomePageTable client:load />
+    </div> -->
+   <header class="section-header">
+        <h3>Nasza Kadra</h3>
+      </header>
+    <div class="trainer-section">
+      {
+        trainers.slice(0, 3).map((trainer: any) => (
+          <TrainerCard
+            name={trainer.name}
+            picture={trainer.finalPictureUrl}
+            description={trainer.description}
+            link={trainer.link}
+          />
+        ))
+      }
+    </div>
+    <div class="trainer-section-mobile">
+      {
+        trainers.slice(0, 3).map((trainer: any) => (
+          <TrainerCard
+            name={trainer.name}
+            picture={trainer.finalPictureUrl}
+            description={trainer.description}
+            link={trainer.link}
+          />
+        ))
+      }
+    </div>
+    <section class="youth">
+      <div class="youth-container">
+        <div class="youth-text">
+          <h2>Nasze grupy młodzieżowe</h2>
+          <p>
+            Szkółka Sokół Marcinkowice, powstała z myślą o wychowywaniu oraz
+            szkoleniu dzieci i młodzieży głodnych sportowych wrażeń i emocji.
+            Jesteśmy grupą trenerów, pasjonatów, którzy chcą wpoić młodym
+            ludziom, coś więcej niż tylko umiejętności piłkarskie. Naszym
+            nadrzędnym celem jest wspieranie i umożliwienie uczestnictwa w
+            zajęciach sportowych dzieciom w wieku od 4–15 lat. Poprzez aktywne
+            uczestnictwo w sporcie wspieramy rozwój fizyczny, emocjonalny i
+            społeczny dzieci. Chcemy wychowywać dzieci poprzez sport , wpajając
+            im elementarne wartości takie jak szacunek dla drugiego człowieka,
+            umiejętności radzenia sobie w trudnych sytuacjach jak również
+            współdziałania w grupie.
+          </p>
+          <a href="/grupy-mlodziezowe">Zobacz Grupy</a>
+        </div>
+        <div class="youth-picture">
+          <Image
+            src={kidosy}
+            alt="Zdjęcia Zadowników"
+            class="youth-picture-img"
+          />
+        </div>
+      </div>
+    </section>
+    <header class="section-header sponsor-header">
+      <h3>Sponsorzy</h3>
+    </header>
+      <Sponsors Sponsors={sponsors} />
+
+    <Footer />
+
+    <script>
+      import gsap from "gsap";
+      import { ScrollTrigger } from "gsap/ScrollTrigger";
+      // .article
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      gsap.to(".article", {
+        y: 16,
+        opacity: 1,
+        stagger: 0.1,
+        delay: 0,
+        duration: 0.2,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".article",
+          toggleActions: "play none none none",
+        },
+      });
+    </script>
+  </body>
+</html>
+
+<style lang="scss">
+  .section-header {
+    font-size: 2rem;
+    font-weight: bold;
+    padding-top: 10rem;
+    padding-bottom: 5rem;
+
+    text-align: center;
+    position: relative;
+    h3 {
+      position: relative;
+      display: inline-block;
+
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        "Open Sans",
+        "Helvetica Neue",
+        sans-serif;
+    }
+    h3::after {
+      content: "";
+      position: absolute;
+      bottom: -1.5rem;
+      left: 50%;
+      transform: translate(-50%);
+      width: 150%;
+      height: 0.2rem;
+      background-color: green;
+    }
+  }
+  .gradient {
+    background: linear-gradient(black 40%, rgba(0, 0, 0, 0));
+    width: 100%;
+    height: 70px;
+  }
+  .hero {
+    width: 100vw;
+    height: 100svh;
+    background-color: green;
+  }
+
+  .articles {
+    width: 100%;
+
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2rem;
+    margin: auto;
+  }
+
+  .upcoming-matches {
+    width: 100%;
+
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 5rem;
+
+    &-matches {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      align-items: center;
+      gap: 5rem;
+    }
+  }
+
+  .last-match-section {
+    width: fit-content;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .table-section {
+    width: fit-content;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .trainer-section {
+    width: fit-content;
+    margin: auto;
+
+    display: flex;
+    gap: 2rem;
+  }
+
+
+  .trainer-section-mobile {
+    display: none;
+  }
+
+  .youth {
+    overflow: hidden;
+
+    margin-top: 10rem;
+    position: relative;
+
+    clip-path: circle(750rem at 50% 750rem);
+
+    @media screen and (max-width: 900px) {
+      margin-top: 5rem;
+      margin-bottom: 5rem;
+
+      clip-path: unset;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: calc(100% - 4.5rem);
+      background-color: #f8f8f8;
+      clip-path: circle(750rem at 50% 750rem);
+      overflow: hidden;
+
+      @media screen and (max-width: 900px) {
+        display: none;
+      }
+    }
+
+    .youth-container {
+      isolation: isolate;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background-color: green;
+      color: white;
+
+      @media screen and (max-width: 900px) {
+        display: block;
+        position: relative;
+      }
+
+      .youth-text {
+        margin: 10rem;
+        width: 50ch;
+        line-height: 1.25rem;
+        justify-self: center;
+        position: relative;
+        z-index: 9999;
+
+        @media screen and (max-width: 900px) {
+          width: 100%;
+          margin: 0;
+          padding: 4rem 2rem;
+        }
+
+        h2 {
+          font-size: 4rem;
+          font-weight: bold;
+          margin-bottom: 2rem;
+          line-height: 4rem;
+
+          @media screen and (max-width: 900px) {
+            font-size: 2rem;
+            line-height: 2rem;
+          }
+        }
+
+        a {
+          display: block;
+          border: 2px solid white;
+          border-radius: 99999999px;
+          padding: 1rem 4rem;
+          text-decoration: none;
+          margin: 2rem auto 0 auto;
+          text-align: center;
+          width: fit-content;
+          font-weight: bold;
+        }
+        &::before {
+          content: "";
+          height: 200%;
+          z-index: -1;
+          background-color: #ffffff18;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          aspect-ratio: 1;
+          transform: translate(-50%, -50%);
+          border-radius: 999999999999999px;
+
+          @media screen and (max-width: 900px) {
+            display: none;
+          }
+        }
+      }
+
+      .youth-picture {
+        mask-image: linear-gradient(to left, black, transparent);
+
+        @media screen and (max-width: 900px) {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          mask-image: linear-gradient(to bottom, black -90%, transparent);
+        }
+        .youth-picture-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transform: scale(1.2);
+
+          @media screen and (max-width: 900px) {
+            object-position: 70% 0;
+          }
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 900px) {
+    // .section-header {
+    //   padding-top: 0;
+    //   text-align: left;
+    //   padding: 25px;
+    // }
+
+    // h3 {
+    //   position: relative;
+    //   font-size: 16px;
+    // }
+
+    // h3::before {
+    //   content: "";
+    //   position: absolute;
+    //   left: -10px;
+    //   width: 0.1rem;
+    //   height: 1.5rem;
+    //   bottom: -0.25rem;
+    //   background-color: green;
+    // }
+
+    // h3::after {
+    //   display: none;
+    // }
+
+    .articles {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      width: fit-content;
+    }
+
+    .upcoming-matches {
+      width: 100%;
+
+      display: flex;
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: center;
+      gap: 5rem;
+      overflow: hidden;
+    }
+
+    .last-match-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: auto;
+    }
+
+    .table-section {
+      width: 100%;
+      margin: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .trainer-section {
+      display: none;
+      width: fit-content;
+      margin: auto;
+      gap: 2rem;
+    }
+
+    .trainer-section-mobile {
+      display: block;
+      width: fit-content;
+      margin: auto;
+      position: relative;
+      margin-bottom: 40px;
+      padding: 20px;
+
+      p {
+        position: absolute;
+        right: -70px;
+        bottom: -30px;
+      }
+    }
+
+    .sponsor-section {
+      grid-template-columns: 1fr 1fr 1fr;
+      width: fit-content;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      margin: auto;
+      padding: 20px;
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+
+  .sponsor-header {
+    padding-top: 5rem;
+    padding-bottom: 10rem;
+
+    @media screen and (max-width: 900px) {
+      padding-top: inherit;
+      padding-bottom: inherit;
+    }
+  }
+</style>

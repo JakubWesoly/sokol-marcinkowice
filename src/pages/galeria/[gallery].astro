@@ -1,0 +1,228 @@
+---
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import GalleryPresentation from "../../components/GalleryPresentation.tsx";
+import Footer from "../../components/Footer";
+import { contentfulClient, type GalleryInterface } from "../../lib/contentful";
+import { generateSlug } from "../../lib/generateSlug.ts";
+import { type GroupOfPictures } from "../galeria/index.astro";
+import { type Entry } from "contentful";
+import unzipper from "unzipper";
+
+// STYLES
+import "../../styles/global.css";
+
+// ASTRO
+
+interface ZippedGallery {
+  name: String;
+  groupOfPictures: GroupOfPictures[];
+}
+export interface UnzippedGroupOfPictures {
+  title: String;
+  buffers: String[];
+}
+
+interface UnzippedGallery {
+  name: String;
+  groupsOfPictures: UnzippedGroupOfPictures[];
+}
+
+export async function getStaticPaths() {
+  const { items } = await contentfulClient.getEntries<GalleryInterface>({
+    content_type: "galleries",
+  });
+
+  function toBuffer(arrayBuffer: ArrayBuffer) {
+    const buffer = Buffer.alloc(arrayBuffer.byteLength);
+    const view = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < buffer.length; ++i) {
+      buffer[i] = view[i];
+    }
+    return buffer;
+  }
+
+  function makeZippedGalleries(
+    item: Entry<GalleryInterface, undefined, string>
+  ) {
+    var finalPictures: Array<GroupOfPictures> = [];
+    for (var i = 0; i < (item.fields.pictures as any).length; i++) {
+      const arrayToAdd: GroupOfPictures = {
+        title: (item.fields.pictures as any)[i].fields.title,
+        photos: (item.fields.pictures as any)[i].fields.file.url,
+      };
+      finalPictures = [...finalPictures, arrayToAdd];
+    }
+    const zippedGallery: ZippedGallery = {
+      name: item.fields.name,
+      groupOfPictures: finalPictures,
+    };
+    return zippedGallery;
+  }
+
+  async function makeUnzippedGroupOfPictures(zippedGallery: ZippedGallery) {
+    const arrayOfGroupOfPcitures = zippedGallery.groupOfPictures;
+    const array = arrayOfGroupOfPcitures.map(
+      async (groupOfPictures: GroupOfPictures) => {
+        const name = groupOfPictures.title;
+        const res = await fetch("http:" + groupOfPictures.photos);
+        const buffer = await res.arrayBuffer();
+        const directory = await unzipper.Open.buffer(toBuffer(buffer));
+        const files = await Promise.all(
+          directory.files.map((d) => {
+            if (d.type == "File" && d) {
+              return d;
+            }
+          })
+        );
+        const newFiles = files.filter((item) => item !== undefined);
+        const buffers: Buffer[] = await Promise.all(
+          newFiles.map(async (item) => {
+            return await item.buffer();
+          })
+        );
+        const newBuffers: Buffer[] = buffers.filter(
+          (item) => item !== undefined
+        );
+
+        const picturesInBase: String[] = newBuffers.map((element) =>
+          element.toString("base64")
+        );
+        const unzippedGroupOfPictures: UnzippedGroupOfPictures = {
+          title: name,
+          buffers: picturesInBase,
+        };
+        return unzippedGroupOfPictures;
+      }
+    );
+    const awaitedGroupOfPictures = await Promise.all(array);
+    const unzippedGallery: UnzippedGallery = {
+      name: zippedGallery.name,
+      groupsOfPictures: awaitedGroupOfPictures,
+    };
+    return unzippedGallery;
+  }
+
+  async function arrayOfGalleries() {
+    return items.map(async (item) => {
+      return await makeUnzippedGroupOfPictures(makeZippedGalleries(item));
+    });
+  }
+
+  const firstAwait = await arrayOfGalleries();
+  const awaitedArrayOfGalleries = await Promise.all(firstAwait);
+
+  function getCorrectGroupOfPictures(name: String) {
+    const correctGallery: UnzippedGallery = awaitedArrayOfGalleries.find(
+      (item) => item.name == name
+    )!;
+    const correctGroupOfPictures: UnzippedGroupOfPictures[] =
+      correctGallery.groupsOfPictures;
+    return correctGroupOfPictures;
+  }
+
+  var pages: {
+    params: {
+      gallery: string;
+    };
+    props: {
+      name: string;
+      pictures: UnzippedGroupOfPictures[];
+    };
+  }[] = [];
+
+  function nameWithSpace(name: string) {
+    let string = name;
+    string = string.replace(" ", "\n");
+    return string;
+  }
+
+  async function setPages() {
+    pages = await Promise.all(
+      items.map(async (item) => ({
+        params: { gallery: generateSlug(item.fields.name) },
+        props: {
+          name: nameWithSpace(item.fields.name),
+          pictures: getCorrectGroupOfPictures(item.fields.name),
+        },
+      }))
+    );
+  }
+
+  await setPages();
+
+  return pages;
+}
+
+const { name, pictures } = Astro.props;
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Galeria - Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="none" client:load />
+    <main class="container">
+      <header class="section-header">
+        <h3 style="white-space: pre-line; line-height:40px">
+          {name}
+        </h3>
+      </header>
+      <GalleryPresentation pictures={pictures} name={name} client:load />
+    </main>
+    <Footer client:load />
+  </body>
+</html>
+
+<style lang="scss">
+  .container {
+    padding-top: 5rem;
+    width: fit-content;
+    margin: auto;
+  }
+
+  h3 {
+    font-weight: 400;
+  }
+
+  @media screen and (max-width: 900px) {
+    .section-header {
+      padding-top: 5rem;
+    }
+    h3 {
+      margin-top: 0rem;
+      padding: 0px;
+      word-break: break-word;
+    }
+
+    h3::after {
+      content: "";
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translate(-50%);
+      width: 120%;
+      height: 0.2rem;
+      background-color: green;
+    }
+
+    .container {
+      padding-top: 0rem;
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    .container {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+</style>

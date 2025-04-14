@@ -1,0 +1,49 @@
+.youth-invitation {
+    position: fixed;
+    bottom: -1px;
+    left: 5rem;
+    width: fit-content;
+
+    .youth-invitation-close {
+        position: absolute;
+        filter:brightness(9999);
+        cursor: pointer;
+        top: 1rem;
+        left: calc(50% - 3rem);
+        width: 2rem;
+        height: 2rem;
+        background-color: red;
+    }
+
+    .youth-invitation-picture {
+        width: 50%;
+        height: 50%;
+        object-fit: cover;
+        margin-bottom: -1px;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .youth-invitation {
+        width: 100svw;
+        height: 100svh;
+
+        bottom: 0;
+        left: 0;
+        background-color: #000000AF;
+        backdrop-filter: blur(.5rem);
+        // transform: translate(-50%, -50%);
+    }
+
+    .youth-invitation-picture {
+        margin-top: 50%;
+        width: 100% !important;
+    }
+
+    .youth-invitation-close {
+        margin-top: 50%;
+        left: unset !important;
+        right: 1rem;
+
+    }
+}

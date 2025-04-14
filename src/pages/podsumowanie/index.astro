@@ -1,0 +1,104 @@
+---
+export const prerender = false;
+
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import Footer from "../../components/Footer";
+import Checkout from "../../components/Checkout";
+import nodemailer from "nodemailer";
+import { cart } from "../../atoms/cart";
+import { useStore } from "@nanostores/react";
+
+// IMAGES
+
+// STYLES
+import "../../styles/global.css";
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const name = data.get("BuyerName");
+    const phoneNumber = data.get("BuyerPhone");
+    const email = data.get("BuyerEmail");
+    const cart = data.get("Cart");
+    if (cart === null) {
+      throw Error("koszyk nie działa");
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.mailersend.net",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "MS_o2XnjK@veska.dev",
+        pass: "f5GCp3JEDL3av6lU",
+      },
+    });
+
+    // Setup email data
+    const mailOptions = {
+      from: '"Sokół Marcinkowice" <MS_o2XnjK@veska.dev>', // sender address
+      to: "wojciech.grobelny29@gmail.com", // list of receivers
+      subject: "Nowe Zamówienie", // Subject line
+      text: `Kupujący: ${name}
+E-Mail: ${email}
+Telefon: ${phoneNumber}
+\n${cart}`,
+    };
+
+    // Send email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log("Message sent: %s", info.messageId);
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="none" client:load />
+    <main class="container">
+      <header class="section-header">
+        <h3>Podsumowanie</h3>
+      </header>
+      <Checkout client:only={"react"} />
+    </main>
+    <Footer client:load />
+  </body>
+
+  <script is:inline>
+    if (window.history.replaceState) {
+      window.history.replaceState(null, null, window.location.href);
+    }
+  </script>
+
+  <style lang="scss">
+    .container {
+      padding-top: 5rem;
+      width: fit-content;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    @media screen and (max-width: 900px) {
+      .container {
+        width: 100%;
+      }
+    }
+  </style>
+</html>

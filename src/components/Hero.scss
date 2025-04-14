@@ -1,0 +1,153 @@
+.hero {
+    width: 100%;
+    height: 100svh;
+    background-color: green;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    position: relative;
+
+    &-gradient{
+        position:absolute;  
+        height: 50svh;
+        width:100%;
+        bottom: 0px;
+        background: linear-gradient(rgba(0,0,0,0), rgb(0,0,0));
+    }
+
+    &-top-gradient{
+        position: absolute;
+        height: 50svh;
+        width: 100%;
+        top:0px;
+        background: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255,255,255, 0));
+    }
+
+    &-small-rectangle{
+        height: 100svh;
+        width:6%;
+        background-color: black;
+    }
+
+    &-big-rectangle{
+        height: 100svh;
+        width:12%;
+        background-color: black;
+    }
+
+    &-background-image{
+        bottom:0px;
+        width:100%;
+        height:300px;
+
+        &-mask{
+            mask-image: linear-gradient(180deg, rgba(0,0,0,0) 10%, rgba(0, 0, 0, 150) 100%);
+            width: 100%;
+            height: 300px;
+            bottom: 0px;
+            position: absolute;
+        }
+    }
+
+    &-content{
+        position: absolute;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+        display: flex;
+        height: 100svh;
+        width:100%;
+        overflow: hidden;
+        top:0px;
+
+        &-text{
+            position: absolute;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        &-ball{
+            position: absolute;
+            bottom: -800px;
+            display: flex;
+            justify-content: center;
+            //width:fit-content;
+            background-size: cover;
+
+            img{
+                width: 100%;
+            }
+        }
+    }
+
+    h3{
+        font-size: 48px;
+        color: #EFE8B6;
+        //margin-bottom: 20px;
+        font-family: 'Julius Sans One';
+    }
+
+    h2{
+        font-size: 80px;
+        font-weight: bold;
+        color:white;
+        margin-top: 20px;
+    }
+
+    h4{
+        font-size: 80px;
+        font-weight: 100;
+        color:white;
+    }
+}
+
+@media screen and (max-width:900px){
+    .hero{
+        height: calc(100svh - 80px);
+
+        &-content{
+
+            height: calc(100svh - 80px);
+            &-text{
+
+                transform: translate(0px, -75px);
+
+                h3{
+                    font-size: 36px;
+                }
+
+                h2{
+                    font-size: 64px;
+                }
+
+                h4{
+                    font-size: 48px;
+                    font-weight: 100;
+                }
+            }
+
+            &-ball{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                bottom: -125px;
+            }
+        }
+
+        &-small-rectangle{
+            width: 12.5%;
+        }
+
+        &-big-rectangle{
+            width: 25%;
+        }
+    }
+
+    .side-rectangle{
+        display: none;
+    }
+}

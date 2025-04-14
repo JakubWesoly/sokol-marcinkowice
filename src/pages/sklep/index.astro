@@ -1,0 +1,92 @@
+---
+// COMPONENTS
+import Navbar from "../../components/NavbarDesktop.tsx";
+import Footer from "../../components/Footer";
+import Shop from "../../components/Shop";
+
+// IMAGES
+
+// STYLES
+import "../../styles/global.css";
+// import { getCollection } from "astro:content";
+
+// const products = await getCollection("products");
+
+import { contentfulClient, type ProductInterface } from "../../lib/contentful";
+import { type Product } from "../../atoms/cart";
+import { generateSlug } from "../../lib/generateSlug";
+import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
+
+const entries = await contentfulClient.getEntries<ProductInterface>({
+  content_type: "products",
+});
+
+const posts = entries.items.map((item) => {
+  const { name, description, type, price, pictures } = item.fields;
+  var JSONPicture = JSON.stringify(pictures);
+  var parsedPicture = JSON.parse(JSONPicture);
+  var finalPictureUrl = "http:" + parsedPicture[0].fields.file.url;
+  return {
+    name,
+    description: documentToHtmlString(description),
+    type,
+    price,
+    finalPictureUrl,
+    link: generateSlug(name),
+  };
+});
+
+const products: Product[] = posts.map((item) => {
+  return {
+    imageSource: item.finalPictureUrl,
+    type: item.type,
+    link: item.link,
+    price: Number(item.price),
+    name: item.name,
+    size: '',
+    description: item.description,
+    count: 1,
+  };
+});
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Sokół Marcinkowice</title>
+  </head>
+  <body>
+    <Navbar current="shop" displayCart={true} client:only="react" />
+    <div class="shop-container">
+      <header class="section-header">
+        <h3>Sklep</h3>
+      </header>
+
+      <Shop products={products} client:only={"react"} />
+    </div>
+
+    <Footer client:load />
+  </body>
+</html>
+
+<style lang="scss">
+  .shop-container {
+    width: 1320px;
+    margin: 5rem auto 0 auto;
+    min-height: 100svh;
+  }
+
+  @media (screen and max-width: 900px) {
+    .shop-container {
+      width: 90%;
+      margin: auto;
+      // margin: 0;
+      padding: 0;
+      .section-header {
+        padding-top: 3rem;
+      }
+    }
+  }
+</style>
